@@ -1,0 +1,25 @@
+name: 'Agent Forge C# build and test workflow'
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+    - name: Restore dependencies
+      run: |
+        dotnet restore ./AgentForge
+        dotnet restore ./AgentForge.Tests
+    - name: Build
+      run: dotnet build --no-restore ./AgentForge
+    - name: Test
+      run: dotnet test --no-build --verbosity normal ./AgentForge.Tests
