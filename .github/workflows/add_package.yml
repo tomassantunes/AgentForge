@@ -7,10 +7,7 @@ jobs:
   build:
     name: Build Package
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
-      
+    
     defaults:
       run:
         working-directory: ./AgentForge
@@ -25,12 +22,14 @@ jobs:
           dotnet-version: '9.0.x'
       - name: Build
         run: dotnet build --configuration Release
+      - name: Authenticate to GitHub Packages
+        run: >
+          dotnet nuget add source --username ${{ github.actor }} --password ${{ secrets.GIT_TOKEN }}
+          --store-password-in-clear-text
+          --name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
       - name: Package
         run: >
             dotnet pack --no-restore --no-build --configuration Release
             -p:PackageVersion=${{ github.ref_name }} --output .
       - name: Publish
-        run: >
-          dotnet nuget push AgentForge.${{ github.ref_name }}.nupkg 
-          --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_KEY }}
-          --skip-duplicate
+        run: dotnet nuget push AgentForge.${{ github.ref_name }}.nupkg -s github --api-key ${{ secrets.GIT_TOKEN }}
