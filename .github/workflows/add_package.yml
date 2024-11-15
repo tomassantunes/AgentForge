@@ -20,11 +20,9 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release
       - name: Package
-        run: >
-            dotnet pack --no-restore --no-build --configuration Release
-            -p:PackageVersion=${{ github.ref_name }} --output .
+        run: dotnet pack --no-restore --no-build --configuration Release --output .
       - name: Publish
         run: >
-          dotnet nuget push AgentForge.${{ github.ref_name }}.nupkg 
+          dotnet nuget push AgentForge.nupkg 
           -s https://nuget.pkg.github.com/tomasantunes/index.json 
           -k ${{ secrets.GIT_TOKEN }}
