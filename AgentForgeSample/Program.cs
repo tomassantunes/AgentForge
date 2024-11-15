@@ -30,7 +30,7 @@ public class Program
         };
         orchestrator.AddFunction(TransferToCodeGenAgent);
         
-        var userMessage = new UserChatMessage("Can you generate a class reflexion C# function that returns the class name and description?");
+        var userMessage = new UserChatMessage("Can you generate Hello World in C#?");
         var response = await client.Run(orchestrator, [userMessage]);
         
         Console.WriteLine(response.GetResponse());

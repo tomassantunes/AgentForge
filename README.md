@@ -41,3 +41,20 @@ public class Program
     }
 }
 ```
+```
+Here is a simple C# program that outputs "Hello, World!" to the console:
+
+\```csharp
+using System;
+
+class HelloWorld
+{
+    static void Main()
+    {
+        Console.WriteLine(\"Hello, World!\");
+    }
+}
+\```
+
+You can compile and run this program using a C# compiler, such as the one provided in the .NET SDK.
+```
