@@ -7,12 +7,9 @@
     <Nullable>enable</Nullable>
     <UserSecretsId>0c17e7c5-a9d8-4458-87be-080f00758009</UserSecretsId>
   </PropertyGroup>
-
+  
   <ItemGroup>
-    <ProjectReference Include="..\AgentForge\AgentForge.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="AgentForge" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0" />
   </ItemGroup>

@@ -5,7 +5,9 @@ Multi-Agent framework for C# .NET inspired by OpenAI Swarm
 Agent Forge is a C# library that facilitates the creation of multi-agent systems for your application utilizing OpenAI models. It efficiently transfers communication between agents until a response to your query is received.
 
 ## Install
-
+```bash
+dotnet add package AgentForge
+```
 ## Usage
 ```cs
 using System.ClientModel;
