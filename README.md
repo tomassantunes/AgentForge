@@ -158,7 +158,7 @@ used to execute a certain workflow with a set of instructions and functions that
 | Field            | Type             | Description                                                                          |
 |------------------|------------------|--------------------------------------------------------------------------------------|
 | **Name**         | `string`         | Defines the agent's name.                                                            |
-| **Instructions** | `string`         | (Optional, "You are an helpful agent.") Defines a set of instructions for the agent. |
+| **Instructions** | `string`         | (Optional, "You are a helpful agent.") Defines a set of instructions for the agent. |
 | **Model**        | `string`         | (Optional, "gpt-4o") Defines the llm model to be used with this agent.               |
 | **Functions**    | `List<Delegate>` | (Optional, []) List of *static* functions the agent has access to.                   |
 | **ToolChoice**   | `string`         | (Optional, "auto") The tool choice for the agent.                                    |
