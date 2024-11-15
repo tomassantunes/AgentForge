@@ -3,6 +3,10 @@ on:
   push:
     tags:
       - "*.*.*"
+        
+permissions: 
+  contents: write
+  
 jobs:
   build:
     name: Build Package
@@ -35,3 +39,5 @@ jobs:
         run: >
           dotnet nuget push AgentForge.${{ github.ref_name }}.nupkg
           -s github --api-key ${{ secrets.GIT_TOKEN }} --skip-duplicate
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
