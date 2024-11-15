@@ -33,6 +33,6 @@ public class Program
         var userMessage = new UserChatMessage("Can you generate a class reflexion C# function that returns the class name and description?");
         var response = await client.Run(orchestrator, [userMessage]);
         
-        Console.WriteLine(response.Messages.Last().Content.FirstOrDefault()!.Text);
+        Console.WriteLine(response.GetResponse());
     }
 }
