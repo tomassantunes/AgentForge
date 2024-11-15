@@ -1,4 +1,7 @@
-﻿using AgentForge;
+﻿using System.ClientModel;
+using System.ComponentModel;
+using AgentForge;
+using AgentForge.Adapters;
 using AgentForge.Entities;
 using Microsoft.Extensions.Configuration;
 using OpenAI.Chat;
@@ -7,22 +10,23 @@ namespace AgentForgeSample;
 
 public class Program
 {
+    [Description("Transfers control to the Code Gen Agent, which generates code based on user input.")]
     public static Agent TransferToCodeGenAgent()
     {
-        return new()
+        return new Agent
         {
             Name = "Code Gen Agent",
             Instructions =
                 "You are a code generating assistant. Your task is to generate code based on the user's input."
         };
     }
+    
     public static async Task Main(string[] args)
     {
         var configuration = new ConfigurationBuilder()
             .AddUserSecrets<Program>()
             .Build();
 
-        var client = Forge.GetInstance(configuration["OPENAI_API_KEY"]!);
         Agent orchestrator = new()
         {
             Name = "Orchestrator",
@@ -30,9 +34,18 @@ public class Program
         };
         orchestrator.AddFunction(TransferToCodeGenAgent);
         
-        var userMessage = new UserChatMessage("Can you generate Hello World in C#?");
-        var response = await client.Run(orchestrator, [userMessage]);
+        var openAIClient = Forge.GetInstance(new OpenAIClient(configuration["OPENAI_API_KEY"]!));
+        var azureClient = Forge.GetInstance(new AzureAIClient(new Uri(configuration["AZURE_ENDPOINT"]!), new 
+                ApiKeyCredential(configuration["AZURE_API_KEY"]!)));
         
-        Console.WriteLine(response.GetResponse());
+        var userMessage = new UserChatMessage("Can you generate a class reflexion C# function that returns the class name and description?");
+        
+        var responseOAI = await openAIClient.Run(orchestrator, [userMessage]);
+        Console.WriteLine("OpenAI: \n" + responseOAI.GetResponse());
+        
+        Console.WriteLine();
+        
+        var responseA = await azureClient.Run(orchestrator, [userMessage]);
+        Console.WriteLine("Azure: \n" + responseA.GetResponse());
     }
 }

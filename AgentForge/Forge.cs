@@ -1,5 +1,7 @@
+using AgentForge.Adapters;
 using AgentForge.Entities;
 using AgentForge.Shared;
+using Azure.AI.OpenAI;
 using Newtonsoft.Json;
 using OpenAI;
 using OpenAI.Chat;
@@ -9,18 +11,18 @@ namespace AgentForge;
 public class Forge
 {
     private static Forge? _instance;
-    private OpenAIClient Client { get; }
+    private IAIClient Client { get; }
 
-    private Forge(string apiKey)
+    private Forge(IAIClient client)
     {
-        Client = new OpenAIClient(apiKey);
+        Client = client;
     }
 
-    public static Forge GetInstance(string apiKey)
+    public static Forge GetInstance(IAIClient client)
     {
-        if (_instance != null) return _instance;
-        
-        _instance ??= new Forge(apiKey);
+        if (_instance is not null) return _instance;
+
+        _instance ??= new Forge(client);
 
         return _instance;
     }
@@ -42,10 +44,11 @@ public class Forge
         {
             completionOptions.ToolChoice = Utils.GetToolChoice(agent.ToolChoice);
         }
-        
-        return await Client
-            .GetChatClient(modelOverride.Length > 0 ? modelOverride : agent.Model)
-            .CompleteChatAsync(messages, completionOptions);
+
+        return await Client.CompleteChatAsync(
+            modelOverride.Length > 0 ? modelOverride : agent.Model,
+            messages,
+            completionOptions);
     }
 
     public async Task<Response> Run(

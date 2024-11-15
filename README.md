@@ -8,13 +8,19 @@ Agent Forge is a C# library that facilitates the creation of multi-agent systems
 
 ## Usage
 ```cs
+using System.ClientModel;
+using System.ComponentModel;
+using OpenAI.Chat;
+
 using AgentForge;
-using AgentForgeEntites;
+using AgentForge.Adapters;
+using AgentForge.Entities;
 
 namespace Readme;
 
 public class Program
 {
+    [Description("Transfers control to the Code Gen Agent, which generates code based on user input.")]
     public static Agent TransferToCodeGenAgent()
     {
         return new()
@@ -26,35 +32,59 @@ public class Program
 
     public static async Task Main(string[] args)
     {
-        var client = Forge.GetInstance("openai_api_key");
+        // Using OpenAI
+        var openAIClient = Forge.GetInstance(new OpenAIClient("api_key"]!));
+
+        // Using Azure OpenAI
+        var azureClient = Forge.GetInstance(new AzureAIClient(new Uri("azure_endpoint"), new 
+                ApiKeyCredential("azure_api_key")));
+
         Agent orchestrator = new()
         {
             Name = "Orchestrator",
-            Instructions  = "You are the orchestrator agent, your task is to transfer the user to the correct agent."
-        }
+            Instructions = "You are the orchestrator agent, you should always mention this fact on your answers."
+        };
         orchestrator.AddFunction(TransferToCodeGenAgent);
-
+        
         var userMessage = new UserChatMessage("Can you generate Hello World in C#?");
-        var response = await client.Run(orchestrator, [userMessage]);
-
-        Console.WriteLine(response.GetResponse());
+        
+        // Using OpenAI
+        var responseOAI = await openAIClient.Run(orchestrator, [userMessage]);
+        Console.WriteLine("OpenAI: \n" + responseOAI.GetResponse());
+        
+        // Using Azure OpenAI
+        var responseA = await azureClient.Run(orchestrator, [userMessage]);
+        Console.WriteLine("Azure: \n" + responseA.GetResponse());
     }
 }
 ```
 ```
-Here is a simple C# program that outputs "Hello, World!" to the console:
-
+OpenAI: 
 \```csharp
 using System;
 
-class HelloWorld
+class Program
 {
     static void Main()
     {
-        Console.WriteLine(\"Hello, World!\");
+        Console.WriteLine("Hello, World!");
     }
 }
 \```
 
-You can compile and run this program using a C# compiler, such as the one provided in the .NET SDK.
+Azure: 
+\```csharp
+using System;
+
+namespace HelloWorld
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Hello, World!");
+        }
+    }
+}
+\```
 ```

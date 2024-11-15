@@ -7,9 +7,7 @@
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AToolChatMessage_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003FLibrary_003FApplication_0020Support_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FSourcesCache_003F9cadb61cba9b1569b36ff7ffc4daba95bc615709afd19d39259c172f5_003FToolChatMessage_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=7a17cb00_002Df588_002D4235_002D8609_002D96b0ba487d60/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Get_instance_should_return_invalid_instance_given_wrong_apikey #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
-    &lt;TestId&gt;xUnit::325DFA2E-20DE-442E-8F5C-EFBF4A3CF331::net9.0::AgentForge.Tests.UnitTests.Get_instance_should_return_valid_instance&lt;/TestId&gt;
-    &lt;TestId&gt;xUnit::325DFA2E-20DE-442E-8F5C-EFBF4A3CF331::net9.0::AgentForge.Tests.UnitTests.GetToolChoice_should_return_valid_tool_choice_if_given_valid_input&lt;/TestId&gt;
-    &lt;TestId&gt;xUnit::325DFA2E-20DE-442E-8F5C-EFBF4A3CF331::net9.0::AgentForge.Tests.UnitTests.FunctionToTool_should_return_valid_chat_tool_if_given_valid_function&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::325DFA2E-20DE-442E-8F5C-EFBF4A3CF331::net9.0::AgentForge.Tests.UnitTests&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
 	</wpf:ResourceDictionary>

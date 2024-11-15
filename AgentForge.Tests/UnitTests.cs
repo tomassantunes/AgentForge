@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using AgentForge;
+using AgentForge.Adapters;
 using AgentForge.Shared;
 using OpenAI.Chat;
 
@@ -8,9 +9,9 @@ namespace AgentForge.Tests;
 public class UnitTests
 {
     [Fact]
-    public void Get_instance_should_return_valid_instance()
+    public void Get_instance_should_return_valid_openai_forge()
     {
-        var agentForge = Forge.GetInstance("any_apikey");
+        var agentForge = Forge.GetInstance(new OpenAIClient("any_apikey"));
         agentForge.Should().BeOfType<Forge>();
     }
 
