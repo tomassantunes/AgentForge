@@ -32,4 +32,6 @@ jobs:
             dotnet pack --no-restore --no-build --configuration Release
             -p:PackageVersion=${{ github.ref_name }} --output .
       - name: Publish
-        run: dotnet nuget push AgentForge.${{ github.ref_name }}.nupkg -s github --api-key ${{ secrets.GIT_TOKEN }}
+        run: >
+          dotnet nuget push AgentForge.${{ github.ref_name }}.nupkg
+          -s github --api-key ${{ secrets.GIT_TOKEN }} --skip-duplicate
