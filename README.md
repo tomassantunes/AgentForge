@@ -140,6 +140,7 @@ The `Run` method implements the following loop:
 | **modelOverride** | `string`            | (Optional) An optional string to override the agent defined model. |
 | **maxTurns**      | `int`               | (Optional) Maximum number of turns in the conversation.            |
 | **executeTools**  | `bool`              | (Optional) If the tool calls should be executed.                   |
+| **debug**         | `bool`              | (Optional) Enables debug logging.                                  |
 
 Once `client.Run()` is finished it will return a `Response` containing the completion finished state.
 
