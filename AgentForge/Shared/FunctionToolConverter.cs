@@ -10,27 +10,38 @@ public static class FunctionToolConverter
     private static readonly Dictionary<Type, string> TypeMap = new()
     {
         { typeof(string), "string" },
-        { typeof(int), "int" },
-        { typeof(float), "float" },
-        { typeof(bool), "bool" },
-        { typeof(List<>), "array" },
-        { typeof(Dictionary<,>), "object" },
+        { typeof(int), "number" },
+        { typeof(float), "number" },
+        { typeof(bool), "boolean" },
         { typeof(object), "null" },
     };
 
-    private static string ResolveType(Type type)
+    private static string ResolveType(Type type, out Dictionary<string, object>? itemsSchema)
     {
+        itemsSchema = null;
+        
+        switch (type.IsGenericType)
+        {
+            case true when (
+                type.GetGenericTypeDefinition() == typeof(List<>) ||
+                type.IsArray):
+                var itemType = type.IsArray ? type.GetElementType() : type.GetGenericArguments()[0];
+                itemsSchema = new Dictionary<string, object>()
+                {
+                    { "type", ResolveType(itemType!, out _) }
+                };
+                return "array";
+            case true when 
+                type.GetGenericTypeDefinition() == typeof(Dictionary<,>):
+                return "object";
+        }
+
         if (TypeMap.TryGetValue(type, out var resolveType))
         {
             return resolveType;
         }
 
-        if (type.IsEnum)
-        {
-            return "string";
-        }
-
-        return "object";
+        return type.IsEnum ? "string" : "object";
     }
 
     public static ChatTool FunctionToTool(Delegate function)
@@ -44,9 +55,10 @@ public static class FunctionToolConverter
             var paramType = param.ParameterType;
             var typeInfo = new
             {
-                type = ResolveType(paramType),
+                type = ResolveType(paramType, out var itemsSchema),
                 description = param.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "",
-                @enum = paramType.IsEnum ? Enum.GetNames(paramType) : null
+                @enum = paramType.IsEnum ? Enum.GetNames(paramType) : null,
+                items = itemsSchema
             };
 
             var cleanTypeInfo = JsonSerializer.Deserialize<Dictionary<string, object>>(

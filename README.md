@@ -21,6 +21,7 @@ Agent Forge is a C# library that facilitates the creation of multi-agent systems
 - Easy integration with OpenAI and Azure OpenAI services.
 - Flexible agent creation and orchestration.
 - Multiple function types allowed for agent functions.
+- Parallel tool calls.
 
 ## Install
 ```bash
@@ -158,7 +159,7 @@ used to execute a certain workflow with a set of instructions and functions that
 | Field            | Type             | Description                                                                          |
 |------------------|------------------|--------------------------------------------------------------------------------------|
 | **Name**         | `string`         | Defines the agent's name.                                                            |
-| **Instructions** | `string`         | (Optional, "You are a helpful agent.") Defines a set of instructions for the agent. |
+| **Instructions** | `string`         | (Optional, "You are a helpful agent.") Defines a set of instructions for the agent.  |
 | **Model**        | `string`         | (Optional, "gpt-4o") Defines the llm model to be used with this agent.               |
 | **Functions**    | `List<Delegate>` | (Optional, []) List of *static* functions the agent has access to.                   |
 | **ToolChoice**   | `string`         | (Optional, "auto") The tool choice for the agent.                                    |
@@ -166,8 +167,7 @@ used to execute a certain workflow with a set of instructions and functions that
 ## Functions
 - Forge Agents can call C# functions directly, with or without parameters.
 - Functions must be `static`.
-- Functions can return `Agent`, `string`.
-[//]: # (, `int`, `float`, `bool`, `List<>`, `Dictionary<>` and `object`.)
+- Functions can return `Agent`, `string`, `int`, `float`, `bool` and `object`.
 - If a Function returns an `Agent`, the execution will be transferred to that `Agent`.
 
 ```csharp
