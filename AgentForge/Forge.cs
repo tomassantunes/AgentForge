@@ -27,30 +27,6 @@ public class Forge
         return _instance;
     }
 
-    private async Task<ChatCompletion> GetChatCompletion(
-        Agent agent,
-        List<ChatMessage> messages,
-        string modelOverride = "")
-    {
-        var completionOptions = new ChatCompletionOptions();
-
-        foreach (var tool in agent.Functions.AsParallel())
-        {
-            var func = FunctionToolConverter.FunctionToTool(tool);
-            completionOptions.Tools.Add(func);
-        }
-
-        if (completionOptions.Tools.Count > 0)
-        {
-            completionOptions.ToolChoice = Utils.GetToolChoice(agent.ToolChoice);
-        }
-
-        return await Client.CompleteChatAsync(
-            modelOverride.Length > 0 ? modelOverride : agent.Model,
-            messages,
-            completionOptions);
-    }
-
     public async Task<Response> Run(
         Agent? agent,
         List<ChatMessage> messages,
@@ -91,6 +67,31 @@ public class Forge
             Agent = activeAgent,
         };
     }
+    
+    private async Task<ChatCompletion> GetChatCompletion(
+        Agent agent,
+        List<ChatMessage> messages,
+        string modelOverride = "")
+    {
+        var completionOptions = new ChatCompletionOptions();
+
+        foreach (var tool in agent.Functions.AsParallel())
+        {
+            var func = FunctionToolConverter.FunctionToTool(tool);
+            completionOptions.Tools.Add(func);
+        }
+
+        if (completionOptions.Tools.Count > 0)
+        {
+            completionOptions.ToolChoice = Utils.GetToolChoice(agent.ToolChoice);
+            completionOptions.AllowParallelToolCalls = agent.ParallelToolCalls;
+        }
+
+        return await Client.CompleteChatAsync(
+            modelOverride.Length > 0 ? modelOverride : agent.Model,
+            messages,
+            completionOptions);
+    }
 
     private Response HandleToolCalls(
         List<ChatToolCall> toolCalls,
@@ -115,8 +116,15 @@ public class Forge
             var args = JsonConvert
                 .DeserializeObject<Dictionary<string, object>>(toolCall.FunctionArguments.ToString());
             var function = functionMap[name];
+            var methodParams = function.Method.GetParameters();
+            var functionArgs = args!.Values.ToArray();
+            for (var i = 0; i < methodParams.Length; i++)
+            {
+                var paramType = methodParams[i].ParameterType;
+                functionArgs[i] = Convert.ChangeType(args![methodParams[i].Name!], paramType);
+            }
 
-            var result = HandleFunctionCall(function.DynamicInvoke(args!.Values.ToArray()));
+            var result = HandleFunctionCall(function.DynamicInvoke(functionArgs));
             response.Messages.Add(ChatMessage.CreateToolMessage(toolCall.Id, result.Value));
 
             if (result.Agent is not null)
