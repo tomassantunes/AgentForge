@@ -1,11 +1,9 @@
-using System.ComponentModel;
-using System.Reflection;
-using System.Text.Json;
+using System.Diagnostics;
 using OpenAI.Chat;
 
 namespace AgentForge.Shared;
 
-public class Utils
+public static class Utils
 {
     public static ChatToolChoice GetToolChoice(string toolChoice)
     {
@@ -20,5 +18,15 @@ public class Utils
             default:
                 return ChatToolChoice.CreateFunctionChoice(toolChoice);
         }
+    }
+
+    public static void DebugPrint(string msg, bool print)
+    {
+        if (!print)
+        {
+            return;
+        }
+        
+        Debug.Print($"[DEBUG] {DateTime.Now} - {msg}");
     }
 }

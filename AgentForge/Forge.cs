@@ -1,9 +1,8 @@
 using AgentForge.Adapters;
 using AgentForge.Entities;
 using AgentForge.Shared;
-using Azure.AI.OpenAI;
 using Newtonsoft.Json;
-using OpenAI;
+using Newtonsoft.Json.Linq;
 using OpenAI.Chat;
 
 namespace AgentForge;
@@ -32,18 +31,22 @@ public class Forge
         List<ChatMessage> messages,
         string modelOverride = "",
         int maxTurns = int.MaxValue,
-        bool executeTools = true)
+        bool executeTools = true,
+        bool debug = false)
     {
         var activeAgent = agent;
         var history = new List<ChatMessage>(messages);
         var initLen = messages.Count;
 
+        Utils.DebugPrint("Starting agent interaction loop...", debug);
+        
         while (history.Count - initLen < maxTurns && activeAgent != null)
         {
-            var completion = await GetChatCompletion(activeAgent, history, modelOverride);
+            var completion = await GetChatCompletion(activeAgent, history, modelOverride, debug);
 
             if (completion.ToolCalls is null || completion.ToolCalls.Count == 0 || !executeTools)
             {
+                Utils.DebugPrint("Interaction loop finished due to no more tool calls.", debug);
                 history.Add(new AssistantChatMessage(completion.Content.FirstOrDefault()?.Text ?? ""));
                 break;
             }
@@ -52,11 +55,13 @@ public class Forge
             
             var partialResponse = HandleToolCalls(
                 completion.ToolCalls.ToList(),
-                activeAgent.Functions);
+                activeAgent.Functions,
+                debug);
             history.AddRange(partialResponse.Messages.Cast<ToolChatMessage>());
 
             if (partialResponse.Agent is not null)
             {
+                Utils.DebugPrint($"Switching to agent '{partialResponse.Agent.Name}'.", debug);
                 activeAgent = partialResponse.Agent;
             }
         }
@@ -71,7 +76,8 @@ public class Forge
     private async Task<ChatCompletion> GetChatCompletion(
         Agent agent,
         List<ChatMessage> messages,
-        string modelOverride = "")
+        string modelOverride = "",
+        bool debug = false)
     {
         var completionOptions = new ChatCompletionOptions();
 
@@ -86,6 +92,10 @@ public class Forge
             completionOptions.ToolChoice = Utils.GetToolChoice(agent.ToolChoice);
             completionOptions.AllowParallelToolCalls = agent.ParallelToolCalls;
         }
+        
+        Utils.DebugPrint($"Getting chat completion for '{string.Join(", ", messages
+            .Where(m => m.Content.Count > 0)
+            .Select(m => m.Content.FirstOrDefault()!.Text).ToList())}'.", debug);
 
         return await Client.CompleteChatAsync(
             modelOverride.Length > 0 ? modelOverride : agent.Model,
@@ -95,7 +105,8 @@ public class Forge
 
     private Response HandleToolCalls(
         List<ChatToolCall> toolCalls,
-        List<Delegate> functions)
+        List<Delegate> functions,
+        bool debug = false)
     {
         var functionMap = functions.ToDictionary(f => f.Method.Name, f => f);
         var response = new Response
@@ -106,22 +117,32 @@ public class Forge
         foreach (var toolCall in toolCalls)
         {
             var name = toolCall.FunctionName;
-            if (!functionMap.ContainsKey(name))
+            
+            Utils.DebugPrint($"Executing function {name}.", debug);
+            
+            if (!functionMap.TryGetValue(name, out var function))
             {
                 response.Messages.Add(ChatMessage
                     .CreateToolMessage(toolCall.Id, $"Error: Tool {name} not found."));
                 continue;
             }
 
-            var args = JsonConvert
-                .DeserializeObject<Dictionary<string, object>>(toolCall.FunctionArguments.ToString());
-            var function = functionMap[name];
             var methodParams = function.Method.GetParameters();
-            var functionArgs = args!.Values.ToArray();
+            var functionArgs = new object[methodParams.Length];
+
+            var jObject = JObject.Parse(toolCall.FunctionArguments.ToString());
             for (var i = 0; i < methodParams.Length; i++)
             {
                 var paramType = methodParams[i].ParameterType;
-                functionArgs[i] = Convert.ChangeType(args![methodParams[i].Name!], paramType);
+                var paramName = methodParams[i].Name!;
+
+                if (!jObject.ContainsKey(paramName))
+                {
+                    throw new ArgumentException(
+                        $"Required argument '{paramName}' not found in tool call function arguments."); 
+                }
+                
+                functionArgs[i] = jObject[paramName]!.ToObject(paramType)!;
             }
 
             var result = HandleFunctionCall(function.DynamicInvoke(functionArgs));
