@@ -92,6 +92,15 @@ public class Forge
             completionOptions.ToolChoice = Utils.GetToolChoice(agent.ToolChoice);
             completionOptions.AllowParallelToolCalls = agent.ParallelToolCalls;
         }
+
+        if (agent.OutputSpec is not null)
+        {
+            completionOptions.ResponseFormat = ChatResponseFormat.CreateJsonSchemaFormat(
+                agent.OutputSpec.Name,
+                agent.OutputSpec.Schema,
+                agent.OutputSpec.Description,
+                agent.OutputSpec.Strict);
+        }
         
         Utils.DebugPrint($"Getting chat completion for '{string.Join(", ", messages
             .Where(m => m.Content.Count > 0)
