@@ -11,6 +11,7 @@ Multi-Agent framework for C# .NET inspired by OpenAI Swarm
     - [Agents](#agents)
     - [Functions](#functions)
     - [Agent transfers](#agent-transfers)
+    - [Structured Outputs](#structured-outputs)
     - [Utils](#utils)
 - [Contributing](#contributing)
 
