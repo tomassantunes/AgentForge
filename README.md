@@ -199,7 +199,7 @@ orchestrator.AddFunction(TransferToGreeter);
 ```
 
 ## Structured Outputs
-Structured Outputs is a feature that is available in `gpt-4o` and `gpt-4o-mini` that ensures the model's response will follow a specified JSON format. This means for example, that you can create a custom type and make sure the model's response will be in the correcty JSON format to convert to that type.
+Structured Outputs is a feature that is available in `gpt-4o` and `gpt-4o-mini` that ensures the model's response will follow a specified JSON format. This means, for example, that you can create a custom type and make sure the model's response will be in the correcty JSON format to convert to that type.
 
 You can use this feature by defining the `OutputSpec` property of your agent using the method `Agent.SetOutputSpec`.
 
@@ -223,11 +223,11 @@ agent.SetOutputSpec(typeof(Reasons), "reasons", true);
 
 ## Utils
 
-#### GetToolChoice(string)
-GetToolChoice converts a string ("auto", "none", "required" or function name) into a valid *ChatToolChoice* type.
+### `GetToolChoice(string)`
+GetToolChoice converts a string ("auto", "none", "required" or function name) into a valid *`ChatToolChoice`* type.
 
-#### FunctionToolConverter
-The purpose of this class is to convert functions into a valid *ChatTool*, it gets the name, description (if given) 
+### `FunctionToolConverter`
+The purpose of this class is to convert functions into a valid *`ChatTool`*, it gets the name, description (if given) 
 and parameters of a function.
 
 # Contributing
