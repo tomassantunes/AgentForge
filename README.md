@@ -198,6 +198,29 @@ var orchestrator = new Agent();
 orchestrator.AddFunction(TransferToGreeter);
 ```
 
+## Structured Outputs
+Structured Outputs is a feature that is available in `gpt-4o` and `gpt-4o-mini` that ensures the model's response will follow a specified JSON format. This means for example, that you can create a custom type and make sure the model's response will be in the correcty JSON format to convert to that type.
+
+You can use this feature by defining the `OutputSpec` property of your agent using the method `Agent.SetOutputSpec`.
+
+#### `Agent.SetOutputSpec` fields
+| Field    | Type     | Description                                   |
+|----------|----------|-----------------------------------------------|
+| **type** | `Type`   | The type you want to be used in the response. |
+| **name** | `string` | The name for your format.                     |
+| **bool** | `bool`   | Wheter the schema is strict.                  |
+
+#### Usage example
+```csharp
+public class Reasons
+{
+    public List<string> ReasonsList { get; set; }
+}
+
+var agent = new Agent();
+agent.SetOutputSpec(typeof(Reasons), "reasons", true);
+```
+
 ## Utils
 
 #### GetToolChoice(string)
