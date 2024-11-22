@@ -11,10 +11,11 @@ public class Agent
     public List<Delegate> Functions { get; set; } = [];
     public string ToolChoice { get; set; } = "auto";
     public bool ParallelToolCalls { get; set; } = false;
+    public OutputSpec? OutputSpec { get; private set; } = null;
 
     public void AddFunction(Delegate function)
     {
-        Functions.Add(function);
+        this.Functions.Add(function);
     }
 
     public void AddFunction<TResult>(Func<TResult> function)
@@ -31,4 +32,9 @@ public class Agent
 
     public List<ChatTool> GetTools() => Functions
         .Select(FunctionToolConverter.FunctionToTool).ToList();
+
+    public void SetOutputSpec(Type type, string name, bool strict)
+    {
+        this.OutputSpec = Utils.TypeToOutputSpec(type, name, strict);
+    }
 }
