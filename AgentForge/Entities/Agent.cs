@@ -8,7 +8,7 @@ public class Agent
     public string Name { get; set; } = string.Empty;
     public string Instructions { get; set; } = "You are a helpful agent.";
     public string Model { get; set; } = "gpt-4o";
-    public List<Delegate> Functions { get; set; } = [];
+    public List<Delegate> Functions { get; } = [];
     public string ToolChoice { get; set; } = "auto";
     public bool ParallelToolCalls { get; set; } = false;
     public OutputSpec? OutputSpec { get; private set; } = null;
