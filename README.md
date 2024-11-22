@@ -11,6 +11,7 @@ Multi-Agent framework for C# .NET inspired by OpenAI Swarm
     - [Agents](#agents)
     - [Functions](#functions)
     - [Agent transfers](#agent-transfers)
+    - [Structured Outputs](#structured-outputs)
     - [Utils](#utils)
 - [Contributing](#contributing)
 
@@ -30,7 +31,7 @@ dotnet add package AgentForge
 
 ## Usage
 Below is a simple example of how to use AgentForge with both OpenAI and Azure in a C# application.
-```cs
+```csharp
 using System.ClientModel;
 using System.ComponentModel;
 using OpenAI.Chat;
@@ -118,6 +119,7 @@ namespace HelloWorld
 
 ## Running Forge
 The first step is to instantiate a Forge client with either an OpenAIClient or AzureOpenAIClient
+
 ```csharp
 var client = Forge.GetInstance(new OpenAICLient("api_key"));
 ```
@@ -140,6 +142,7 @@ The `Run` method implements the following loop:
 | **modelOverride** | `string`            | (Optional) An optional string to override the agent defined model. |
 | **maxTurns**      | `int`               | (Optional) Maximum number of turns in the conversation.            |
 | **executeTools**  | `bool`              | (Optional) If the tool calls should be executed.                   |
+| **debug**         | `bool`              | (Optional) Enables debug logging.                                  |
 
 Once `client.Run()` is finished it will return a `Response` containing the completion finished state.
 
@@ -156,13 +159,14 @@ Agents can be used to perform specific tasks like get the current weather or gen
 used to execute a certain workflow with a set of instructions and functions that define this behavior.
 
 ### `Agent` fields
-| Field            | Type             | Description                                                                          |
-|------------------|------------------|--------------------------------------------------------------------------------------|
-| **Name**         | `string`         | Defines the agent's name.                                                            |
-| **Instructions** | `string`         | (Optional, "You are a helpful agent.") Defines a set of instructions for the agent.  |
-| **Model**        | `string`         | (Optional, "gpt-4o") Defines the llm model to be used with this agent.               |
-| **Functions**    | `List<Delegate>` | (Optional, []) List of *static* functions the agent has access to.                   |
-| **ToolChoice**   | `string`         | (Optional, "auto") The tool choice for the agent.                                    |
+| Field            | Type             | Description                                                                                                                            |
+|------------------|------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| **Name**         | `string`         | Defines the agent's name.                                                                                                              |
+| **Instructions** | `string`         | (Optional, "You are a helpful agent.") Defines a set of instructions for the agent.                                                    |
+| **Model**        | `string`         | (Optional, "gpt-4o") Defines the llm model to be used with this agent.                                                                 |
+| **Functions**    | `List<Delegate>` | (Optional, []) List of *static* functions the agent has access to. (Use the `Agent.AddFunction` method to add functions to your agent) |
+| **ToolChoice**   | `string`         | (Optional, "auto") The tool choice for the agent.                                                                                      |
+| **OutputSpec**   | `OutputSpec`     | (Optional, null) The llm output format aka structured outputs. (Use the `Agent.SetOutputSpec` method to define the output spec)        |
 
 ## Functions
 - Forge Agents can call C# functions directly, with or without parameters.
@@ -183,6 +187,7 @@ helloAgent.AddFunction(hello);
 
 ## `Agent` transfers
 The execution can be transferred to another `Agent` by returning it in a `Function`.
+
 ```csharp
 [Description("Transfers the execution to agent Greeter")]
 public static Agent TransferToGreeter()
@@ -191,20 +196,48 @@ public static Agent TransferToGreeter()
     {
         Name = "Greeter Agent",
         Instructions = "You are a nice Agent. Your job is to greet users in the most friendly way possible"
-    }
+    };
 }
+
 var orchestrator = new Agent();
 orchestrator.AddFunction(TransferToGreeter);
 ```
 
+## Structured Outputs
+Structured Outputs is a feature that is available in `gpt-4o` and `gpt-4o-mini` that ensures the model's response will follow a specified JSON format. This means, for example, that you can create a custom type and make sure the model's response will be in the correcty JSON format to convert to that type.
+
+You can use this feature by defining the `OutputSpec` property of your agent using the method `Agent.SetOutputSpec`.
+
+#### `Agent.SetOutputSpec` fields
+| Field    | Type     | Description                                   |
+|----------|----------|-----------------------------------------------|
+| **type** | `Type`   | The type you want to be used in the response. |
+| **name** | `string` | The name for your format.                     |
+| **bool** | `bool`   | Whether the schema is strict.                 |
+
+#### Usage example
+```csharp
+public class Reasons
+{
+    public List<string> ReasonsList { get; set; }
+}
+
+var agent = new Agent();
+agent.SetOutputSpec(typeof(Reasons), "reasons", true);
+```
+
 ## Utils
 
-#### GetToolChoice(string)
-GetToolChoice converts a string ("auto", "none", "required" or function name) into a valid *ChatToolChoice* type.
+### `GetToolChoice(string)`
+GetToolChoice converts a string ("auto", "none", "required" or function name) into a valid *`ChatToolChoice`* type.
 
-#### FunctionToolConverter
-The purpose of this class is to convert functions into a valid *ChatTool*, it gets the name, description (if given) 
+### `FunctionToolConverter`
+The purpose of this class is to convert functions into a valid *`ChatTool`*, it gets the name, description (if given) 
 and parameters of a function.
+
+### `TypeToOutputSpec`
+This function converts a type to an OutputSpec, defines the name and if it is a strict schema, based on user 
+arguments. It is used by the `Agent` class method `SetOutputSpec`.
 
 # Contributing
 We welcome contributions! Please follow these steps to contribute:

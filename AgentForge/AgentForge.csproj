@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0-beta.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
     <PackageReference Include="OpenAI" Version="2.1.0-beta.2" />
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
