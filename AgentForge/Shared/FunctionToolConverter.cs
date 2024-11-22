@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Schema;
+using Newtonsoft.Json.Schema.Generation;
 using OpenAI.Chat;
 
 namespace AgentForge.Shared;
@@ -17,7 +17,11 @@ public static class FunctionToolConverter
         foreach (var param in parameters)
         {
             var paramType = param.ParameterType;
-            var typeInfo = JsonSerializerOptions.Default.GetJsonSchemaAsNode(paramType);
+            
+            JSchemaGenerator generator = new();
+            var typeInfo = generator.Generate(paramType);
+            typeInfo.AllowAdditionalProperties = false;
+            
             properties.Add(param.Name!, typeInfo);
         }
 
